@@ -1,6 +1,11 @@
-use macroquad::prelude::*;
+mod scenes;
 
-const BG_COLOR:Color = Color::new(0.788, 0.851, 0.706, 1.);
+use macroquad::prelude::*;
+use scenes::make_scene;
+use scenes::scene::{Scene, SceneKind};
+
+// const BG_COLOR:Color = Color::new(0.788, 0.851, 0.706, 1.);
+
 
 //画面制定
 fn window_conf() -> Conf
@@ -18,9 +23,16 @@ fn window_conf() -> Conf
 #[macroquad::main(window_conf)]
 async fn main() 
 {
+    let mut current_scene:Box<dyn Scene> = make_scene(SceneKind::Menu);
+
     loop
     {
-        clear_background(BG_COLOR);
+        if let Some(next) = current_scene.update()
+        {
+            current_scene = make_scene(next)
+        }
+
+        current_scene.draw();
 
         next_frame().await
     }

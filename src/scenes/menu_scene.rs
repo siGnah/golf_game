@@ -1,0 +1,31 @@
+use macroquad::prelude::*;
+use super::scene::{Scene, SceneKind};
+
+pub struct MenuScene;
+
+impl MenuScene 
+{
+    pub fn new() -> Self 
+    {
+        Self
+    }
+}
+
+impl Scene for MenuScene 
+{
+    fn update(&mut self) -> Option<SceneKind> 
+    {
+        if is_key_pressed(KeyCode::Enter) 
+        {
+            return Some(SceneKind::Game);
+	    }
+
+	    //return none
+        None
+    }
+
+    fn draw(&self) 
+    {
+
+    }
+}
