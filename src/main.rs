@@ -12,8 +12,8 @@ fn window_conf() -> Conf
 	Conf 
 	{
 	   window_title: "ゴルフゲーム".to_owned(),
-	   window_width: 800,
-	   window_height: 450,
+	   window_width: 1600,
+	   window_height: 900,
 	   window_resizable: false,
 	   ..Default::default()
 	}

@@ -25,7 +25,7 @@ impl Scene for MenuScene
 		None
 	}
 
-	fn draw(&mut self)
+	fn draw(&self)
 	{
 
 	}

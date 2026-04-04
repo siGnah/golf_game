@@ -7,7 +7,7 @@ pub fn create_dynamic_body(
 {
 	let body = RigidBodyBuilder::dynamic()
 			.translation(Vec2{x, y})
-			.enabled(true)
+			.linear_damping(0.08)
 			.build();
 
 	//ハンドルを返す
@@ -21,23 +21,11 @@ pub fn create_ball_collider(
 	rad:f32
 	) -> ColliderHandle
 {
-	let collider = ColliderBuilder::ball(rad);
+	let collider = ColliderBuilder::ball(rad)
+			.friction(0.7)
+			.build();
 
 	//
 	collider_set.insert_with_parent(collider, rigid_body_handle, rigid_body_set)
 }
 
-pub fn get_body(
-	rigid_body_set: &mut RigidBodySet,
-	rigid_body_handle: RigidBodyHandle
-	) -> Option<&mut RigidBody>
-{
-	if let Some(body) = rigid_body_set.get_mut(rigid_body_handle)
-	{
-		return Some(body);
-	}
-	else
-	{
-		return None;
-	}
-}

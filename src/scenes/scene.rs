@@ -7,5 +7,5 @@ pub enum SceneKind
 pub trait Scene
 {
 	fn update(&mut self) -> Option<SceneKind>;
-	fn draw(&mut self);
+	fn draw(&self);
 }

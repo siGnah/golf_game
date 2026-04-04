@@ -31,7 +31,7 @@ impl GameScene
 		let mut game = Self
 		{
 			world: World::new(),
-			physics: PhysicsState 
+			physics: PhysicsState
 			{
 				physics_pipeline: PhysicsPipeline::new(),
 				gravity: vector![0.0, 0.0].into(),
@@ -50,8 +50,8 @@ impl GameScene
 
 		//ボールを作る
 		create_ball(
-			&mut game.world, 
-			&mut game.physics.rb_set, 
+			&mut game.world,
+			&mut game.physics.rb_set,
 			&mut game.physics.collider_set
 			);
 
@@ -77,10 +77,10 @@ impl Scene for GameScene
 		None
 	}
 
-	fn draw(&mut self)
+	fn draw(&self)
 	{
 		clear_background(self.bg_color);
 		draw_fps();
-		draw_ball(&self.world, &mut self.physics.rb_set);
+		draw_ball(&self.world, &self.physics.rb_set);
 	}
 }
