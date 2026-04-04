@@ -1,11 +1,11 @@
 pub enum SceneKind
 {
-	Menu,
-	Game	
+	Game,
+	Menu
 }
 
 pub trait Scene
 {
 	fn update(&mut self) -> Option<SceneKind>;
-	fn draw(&self);
+	fn draw(&mut self);
 }

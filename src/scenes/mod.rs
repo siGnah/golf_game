@@ -8,7 +8,7 @@ use menu_scene::{MenuScene};
 
 pub fn make_scene(kind: SceneKind) -> Box<dyn Scene> {
     match kind {
-        SceneKind::Menu => Box::new(MenuScene::new()),
         SceneKind::Game => Box::new(GameScene::new()),
+        SceneKind::Menu => Box::new(MenuScene::new()),
     }
 }
