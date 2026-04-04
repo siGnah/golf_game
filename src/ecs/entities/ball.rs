@@ -34,11 +34,13 @@ pub fn create_ball(
 	));
 }
 
+//ボール更新処理
 pub fn update_ball(world: &mut World, rigid_body_set: &mut RigidBodySet)
 {
-  line(world, rigid_body_set);
+  impulse_ball(world, rigid_body_set);
 }
 
+//ボール描画処理
 pub fn draw_ball(world: &World, rigid_body_set: &mut RigidBodySet)
 {
 	for (dy_b, ball) in world.query::<(&DynamicBody, &GBall)>().iter()
@@ -49,6 +51,12 @@ pub fn draw_ball(world: &World, rigid_body_set: &mut RigidBodySet)
 			{
 		    let pos = body.translation();
 				draw_circle(pos.x, pos.y, ball.radius, WHITE);
+
+				if ball.charge
+				{
+					let (mouse_x, mouse_y) = mouse_position();
+					draw_line(mouse_x + pos.x/2., mouse_y + pos.x/2., pos.x, pos.y, 3., BLUE);
+				}
 			}
 			None => {}
 		}
@@ -56,7 +64,7 @@ pub fn draw_ball(world: &World, rigid_body_set: &mut RigidBodySet)
 }
 
 //他のこと
-fn line(world: &mut World, rigid_body_set: &mut RigidBodySet)
+fn impulse_ball(world: &mut World, rigid_body_set: &mut RigidBodySet)
 {
 	for (dy_b, ball) in world.query_mut::<(&mut DynamicBody, &mut GBall)>()
 	{
@@ -78,19 +86,12 @@ fn line(world: &mut World, rigid_body_set: &mut RigidBodySet)
 				{
 					let (mouse_x, mouse_y) = mouse_position();
 
-					let fx = mouse_x - pos_x;
-					let fy = mouse_y - pos_y;
-
-					println!("is sleeping: {}", body.is_sleeping());
-
-					println!("fx: {}", fx);
-					println!("fy: {}", fy);
+					let fx = (mouse_x - pos_x) * -1.;
+					let fy = (mouse_y - pos_y) * -1.;
 
 					if is_mouse_button_released(MouseButton::Left)
 					{	
-						body.apply_impulse(vector![fx * 10., fy * 10.].into(), true);
-						println!("force added");
-						println!("pos: ({}, {})", pos_x, pos_y);
+						body.apply_impulse(vector![fx * 100., fy * 100.].into(), true);
 						ball.charge = false;
 					}
 				}

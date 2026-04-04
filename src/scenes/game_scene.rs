@@ -13,15 +13,13 @@ use rapier2d::prelude::*;
 //my stuff
 use super::scene::{Scene, SceneKind};
 use crate::ecs::entities::ball::*;
-use crate::physics::PhysicsState;
+use crate::physics::*;
 
 
 
 pub struct GameScene
 {
 	world: World,
-	rb_set: RigidBodySet,
-	c_set: ColliderSet,
 	physics: PhysicsState,
 	bg_color: Color,
 }
@@ -33,8 +31,6 @@ impl GameScene
 		let mut game = Self
 		{
 			world: World::new(),
-			rb_set: RigidBodySet::new(),
-			c_set: ColliderSet::new(),
 			physics: PhysicsState 
 			{
 				physics_pipeline: PhysicsPipeline::new(),
@@ -43,7 +39,7 @@ impl GameScene
 				island_manager: IslandManager::new(),
 				broad_phase: BroadPhaseBvh::new(),
 				narrow_phase: NarrowPhase::new(),
-				rigid_body_set: RigidBodySet::new(),
+				rb_set: RigidBodySet::new(),
 				collider_set: ColliderSet::new(),
 				impulse_joint_set: ImpulseJointSet::new(),
 				multibody_joint_set: MultibodyJointSet::new(),
@@ -53,7 +49,11 @@ impl GameScene
 		};
 
 		//ボールを作る
-		create_ball(&mut game.world, &mut game.rb_set, &mut game.c_set);
+		create_ball(
+			&mut game.world, 
+			&mut game.physics.rb_set, 
+			&mut game.physics.collider_set
+			);
 
 		//ゲームを返す
 		game
@@ -72,21 +72,8 @@ impl Scene for GameScene
 			return Some(SceneKind::Menu)
 		}
 
-		update_ball(&mut self.world,&mut self.rb_set);
-		self.physics.physics_pipeline.step(
-				self.physics.gravity,
-				&self.physics.integration_parameters,
-				&mut self.physics.island_manager,
-				&mut self.physics.broad_phase,
-				&mut self.physics.narrow_phase,
-				&mut self.physics.rigid_body_set,
-				&mut self.physics.collider_set,
-				&mut self.physics.impulse_joint_set,
-				&mut self.physics.multibody_joint_set,
-				&mut self.physics.ccd_solver,
-				&(),
-				&(),
-			);	
+		update_ball(&mut self.world,&mut self.physics.rb_set);
+		update_physics(&mut self.physics);
 		None
 	}
 
@@ -94,6 +81,6 @@ impl Scene for GameScene
 	{
 		clear_background(self.bg_color);
 		draw_fps();
-		draw_ball(&self.world, &mut self.rb_set);
+		draw_ball(&self.world, &mut self.physics.rb_set);
 	}
 }
