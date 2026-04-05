@@ -26,6 +26,7 @@ async fn main()
 
  	loop 
  	{
+
       if let Some(next) = current_scene.update() 
      	{	
       	current_scene = make_scene(next)

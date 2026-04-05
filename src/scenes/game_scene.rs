@@ -21,6 +21,8 @@ pub struct GameScene
 {
 	world: World,
 	physics: PhysicsState,
+	acumulator: f32,
+	fixed_dt:f32,
 	bg_color: Color,
 }
 
@@ -31,20 +33,10 @@ impl GameScene
 		let mut game = Self
 		{
 			world: World::new(),
-			physics: PhysicsState
-			{
-				physics_pipeline: PhysicsPipeline::new(),
-				gravity: vector![0.0, 0.0].into(),
-				integration_parameters: IntegrationParameters::default(),
-				island_manager: IslandManager::new(),
-				broad_phase: BroadPhaseBvh::new(),
-				narrow_phase: NarrowPhase::new(),
-				rb_set: RigidBodySet::new(),
-				collider_set: ColliderSet::new(),
-				impulse_joint_set: ImpulseJointSet::new(),
-				multibody_joint_set: MultibodyJointSet::new(),
-				ccd_solver: CCDSolver::new(),
-			},
+			physics: PhysicsState::new(),
+			acumulator: 0.,
+			fixed_dt: 1./60.,
+
 			bg_color: Color::new(0.788, 0.851, 0.706, 1.),
 		};
 
@@ -52,8 +44,16 @@ impl GameScene
 		create_ball(
 			&mut game.world,
 			&mut game.physics.rb_set,
-			&mut game.physics.collider_set
-			);
+			&mut game.physics.collider_set,
+			150., 200.
+		);
+
+		create_ball(
+		   &mut game.world,
+			&mut game.physics.rb_set,
+			&mut game.physics.collider_set,
+			800., 500.
+		);
 
 		//ゲームを返す
 		game
@@ -73,7 +73,17 @@ impl Scene for GameScene
 		}
 
 		update_ball(&mut self.world,&mut self.physics.rb_set);
-		update_physics(&mut self.physics);
+
+		let frame_time = get_frame_time().min(0.25);
+		self.acumulator += frame_time;
+
+		while self.acumulator >= self.fixed_dt
+		{
+			self.physics.integration_parameters.dt = self.fixed_dt;
+			self.physics.update();
+			self.acumulator -= self.fixed_dt;
+		}
+
 		None
 	}
 

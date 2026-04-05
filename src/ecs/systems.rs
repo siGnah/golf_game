@@ -7,7 +7,7 @@ pub fn create_dynamic_body(
 {
 	let body = RigidBodyBuilder::dynamic()
 			.translation(Vec2{x, y})
-			.linear_damping(0.08)
+			.linear_damping(1.)
 			.build();
 
 	//ハンドルを返す

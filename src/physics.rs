@@ -14,21 +14,41 @@ pub struct PhysicsState {
 	pub ccd_solver: CCDSolver,
 }
 
-pub fn update_physics(physics: &mut PhysicsState)
-{
-	physics.physics_pipeline.step(
-		physics.gravity,
-		&physics.integration_parameters,
-		&mut physics.island_manager,
-		&mut physics.broad_phase,
-		&mut physics.narrow_phase,
-		&mut physics.rb_set,
-		&mut physics.collider_set,
-		&mut physics.impulse_joint_set,
-		&mut physics.multibody_joint_set,
-		&mut physics.ccd_solver,
-		&(),
-		&(),
-	);
-}
+impl PhysicsState {
+   pub fn new() -> Self
+   {
+   	Self
+   	{
+			physics_pipeline: PhysicsPipeline::new(),
+			gravity: vector![0.0, 0.0].into(),
+			integration_parameters: IntegrationParameters::default(),
+			island_manager: IslandManager::new(),
+			broad_phase: BroadPhaseBvh::new(),
+			narrow_phase: NarrowPhase::new(),
+			rb_set: RigidBodySet::new(),
+			collider_set: ColliderSet::new(),
+			impulse_joint_set: ImpulseJointSet::new(),
+			multibody_joint_set: MultibodyJointSet::new(),
+			ccd_solver: CCDSolver::new(),
+   	}
+   }
 
+   pub fn update(&mut self)
+   {
+   	self.physics_pipeline.step
+   	(
+			self.gravity,
+			&self.integration_parameters,
+			&mut self.island_manager,
+			&mut self.broad_phase,
+			&mut self.narrow_phase,
+			&mut self.rb_set,
+			&mut self.collider_set,
+			&mut self.impulse_joint_set,
+			&mut self.multibody_joint_set,
+			&mut self.ccd_solver,
+			&(),
+			&(),
+		)
+   }
+}

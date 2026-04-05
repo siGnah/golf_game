@@ -19,12 +19,13 @@ use crate::ecs::systems::*;
 pub fn create_ball(
 	world: &mut World,
 	rigid_body_set: &mut RigidBodySet,
-	collider_set: &mut ColliderSet
+	collider_set: &mut ColliderSet,
+	x:f32, y:f32
 )
 {
 	let radius:f32 = 20.;
 
-	let body_handle = create_dynamic_body(rigid_body_set, 500., 400.);
+	let body_handle = create_dynamic_body(rigid_body_set, x, y);
 	let collider_handle = create_ball_collider(
 		rigid_body_set, body_handle, collider_set, radius
 	);
@@ -37,11 +38,11 @@ pub fn create_ball(
 
 //ボール更新処理
 pub fn update_ball(
-	world: &mut World, 
+	world: &mut World,
 	rigid_body_set: &mut RigidBodySet,
 )
 {
-	impulse_ball(world, rigid_body_set);
+	ball_physics(world, rigid_body_set);
 }
 
 //ボール描画処理
@@ -51,7 +52,7 @@ pub fn draw_ball(world: &World, rigid_body_set: &RigidBodySet)
 	{
 
 
-   	if let Some(body) = rigid_body_set.get(dy_b.handle) 
+   	if let Some(body) = rigid_body_set.get(dy_b.handle)
 		{
 			let pos = body.translation();
 			draw_circle(pos.x, pos.y, ball.radius, WHITE);
@@ -66,46 +67,25 @@ pub fn draw_ball(world: &World, rigid_body_set: &RigidBodySet)
 }
 
 //他のこと
-fn impulse_ball(
+fn ball_physics(
 	world: &mut World,
-	rigid_body_set: &mut RigidBodySet, 
+	rigid_body_set: &mut RigidBodySet,
 )
 {
 	for (dy_b, ball) in world.query_mut::<(&mut DynamicBody, &mut GBall)>()
 	{
-		if let Some(body) = rigid_body_set.get_mut(dy_b.handle)	
+		if let Some(body) = rigid_body_set.get_mut(dy_b.handle)
 		{
 			let pos_x = body.translation().x;
 			let pos_y = body.translation().y;
 
-			if is_mouse_button_pressed(MouseButton::Left)
-			&& mouse_hovers_ball(ball.radius, pos_x, pos_y)
-			{
-				ball.charge = true;
-			}
-			else
 
-			if ball.charge
-			{
-				let (mouse_x, mouse_y) = mouse_position();
-				let max_force:f32 = 500.;
-
-				let fx = clamp((mouse_x - pos_x) * -1., -max_force, max_force);
-				let fy = clamp((mouse_y - pos_y) * -1., -max_force, max_force);
-
-				// println!("force: ({}, {})", fx, fy);
-
-				if is_mouse_button_released(MouseButton::Left)
-				{	
-					body.apply_impulse(vector![fx * 100., fy * 100.].into(), true);
-					ball.charge = false;
-				}
-			}
+			apply_impulse(body, ball, vector![pos_x, pos_y].into());
+			keep_in_bouds(body, ball, vector![pos_x, pos_y].into());
 		}
-
-
 	}
 }
+
 
 fn mouse_hovers_ball(radius:f32, bx:f32, by:f32) -> bool
 {
@@ -119,5 +99,53 @@ fn mouse_hovers_ball(radius:f32, bx:f32, by:f32) -> bool
 	else
 	{
 		false
+	}
+}
+
+fn apply_impulse(body: &mut RigidBody, ball: &mut GBall, pos: Vector)
+{
+
+	if is_mouse_button_pressed(MouseButton::Left)
+	&& mouse_hovers_ball(ball.radius, pos.x, pos.y)
+	{
+		ball.charge = true;
+	}
+
+	if ball.charge
+	{
+		let (mouse_x, mouse_y) = mouse_position();
+		let max_force:f32 = 1000.;
+
+		let fx = clamp((mouse_x - pos.x) * -1., -max_force, max_force);
+		let fy = clamp((mouse_y - pos.y) * -1., -max_force, max_force);
+
+		// println!("force: ({}, {})", fx, fy);
+
+		if is_mouse_button_released(MouseButton::Left)
+		{
+			body.apply_impulse(vector![fx * 6000., fy * 6000.].into(), true);
+			ball.charge = false;
+		}
+	}
+}
+
+fn keep_in_bouds(body: &mut RigidBody, ball: &mut GBall, pos: Vector)
+{
+	let mut vx = body.linvel().x;
+	let mut vy = body.linvel().y;
+
+	if vx != 0. && vy != 0.
+	{
+		if pos.x - ball.radius <= 0. || pos.x + ball.radius >= 1600.
+		{
+			vx *= -1.;
+			body.set_linvel(vector![vx, vy].into(), true);
+		}
+
+		if pos.y - ball.radius <= 0. || pos.y + ball.radius >= 900.
+		{
+			vy *= -1.;
+			body.set_linvel(vector![vx, vy].into(), true);
+		}
 	}
 }

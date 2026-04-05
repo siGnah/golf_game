@@ -27,7 +27,9 @@ impl Scene for MenuScene
 
 	fn draw(&self)
 	{
-
+		clear_background(Color::new(0.933, 0.576, 1., 1.));
+		let text = "Klk menol";
+		draw_text(&text, 800., 300., 50., WHITE);
 	}
 }
 
